@@ -59,7 +59,9 @@ Linux: [clash-verge-rev](https://github.com/clash-verge-rev/clash-verge-rev/rele
 #### 移动端
 
 ##### Android 设置示例
-![[1726302461432.png]]
+
+![android](images/android.png)
+
 其他保持默认，通过配置文件设置即可。
 
 ##### iOS 设置示例
