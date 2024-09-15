@@ -5,7 +5,12 @@
 Clash 分为两个部分，内核和客户端。
 目前经许多大佬贡献，开源社区出现了许多的客户端，
 现在已经可以实现一个 Clash 配置跨全部平台使用，
-故撰写本文实现最佳实践。
+但是很多人并不太会使用 Clash 提供的功能，
+依赖客户端和订阅转换、规则转换重复实现内核已有的功能。
+故撰写本文实现：
+- 多订阅聚合
+- 最佳分流规则实践
+- 一个配置跨所有平台使用
 
 ### 内核
 
@@ -84,6 +89,8 @@ Clash 分为两个部分，内核和客户端。
 
 ## 第三章 进阶：配置文件编写
 
+参考文档 [wiki.metacubex.one](https://wiki.metacubex.one/config/)
+
 ### 1. 准备
 
 首先，使用 vscode 打开一个空文件夹，里面新建空文件
@@ -124,11 +131,63 @@ allow-lan: true # 允许局域网连接
 bind-address: "*" # 绑定 ip 地址，仅作用于 allow-lan 为 true，'*'表示所有地址
 geox-url: #自定义 geodata url
   geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
-  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules- dat@release/geosite.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geosite.dat"
   mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
   asn: "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
 geodata-mode: true # true 使用 .dat, false 使用 .mmdb
 geo-auto-update: true
 geo-update-interval: 720
+external-controller: 0.0.0.0:9090 # api 监听地址
+secret: change-me-to-a-complex-secret # 修改为你自己安全的密码
+global-ua: baidu # 内核下载配置资源使用的 ua，默认值 clash.meta.
+unified-delay: true # 消除连接握手等带来的不同类型节点的延迟差异
+tcp-concurrent: true # TCP 并发
+global-client-fingerprint: random # 全局客户端指纹，按概率生成一个现代浏览器指纹。
+profile: # 内核缓存
+  store-selected: true # 储存 API 对策略组的选择，以供下次启动时使用
+
+tun: # PC 全局代理配置，按这样写就行，具体说明看参考文档
+  enable: false
+  stack: system
+  strict-route: true
+  endpoint-independent-nat: true
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+    - any:853
+    - tcp://any:853
+
+dns: # dns 配置
+  enable: true # 关闭将使用系统 dns
+  listen: 0.0.0.0:1053
+  prefer-h3: true
+  ipv6: true # false 将返回 aaaa 的空结果
+  ipv6-timeout: 50 # 单位：ms，内部双栈并发时，向上游查询 aaaa 时，等待 aaaa 的时间，默认 100ms
+  use-system-hosts: true
+  use-hosts: true
+
+  default-nameserver: # 用来解析 DNS 服务器的域名，必须为 IP，可使用加密 DNS
+    - https://223.5.5.5/dns-query
+
+  # Clash 内核特有的设置，优先于所有 nameserver/fallback 查询，分流更方便精准
+  nameserver-policy: # 指定域名查询的解析服务器，可使用 geosite, 
+    "geosite:tld-cn,private,cn": # 指定中国大陆的网站使用的 DNS
+      - https://223.5.5.5/dns-query
+      - system # 电脑默认 DNS
+      - dhcp://system # 仅供 ClashMetaForAndroid 使用
+
+    "geosite:tld-!cn,gfw,geolocation-!cn": # 指定非中国大陆的网站使用的 DNS
+    # 按你自己能访问的 DoH 服务器设置吧，我这里只列出了我能使用的示例
+      - https://dns.twnic.tw/dns-query
+      - https://10unu08q1g.cloudflare-gateway.com/dns-query
+
+  # 为了兼容旧版内核保留的设置内容，功能和上面对应的相同，但分流功能没有 policy 丰富完善
+  nameserver:
+    - https://223.5.5.5/dns-query
+    - system
+    - dhcp://system
+  fallback:
+    - https://dns.twnic.tw/dns-query
+    - https://0zc4480u40.cloudflare-gateway.com/dns-query
 ```
 
