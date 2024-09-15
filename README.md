@@ -19,7 +19,9 @@ Clash 分为两个部分，内核和客户端，经许多大佬贡献，开源�
 ### 内核介绍
 
 原版 Clash 内核已不再维护，现仍在积极维护且广泛使用的内核为 [mihomo](https://github.com/MetaCubeX/mihomo/tree/Alpha) (曾用名 clash meta)。
+
 本文将 旧原版 Clash、clash premium 、mihomo、clash meta 等名字统称为 Clash，实际都是指 [mihomo](https://github.com/MetaCubeX/mihomo/tree/Alpha)。
+
 推荐在使用旧原版 clash、clash premium 内核的用户及时切换到新内核，mihomo 兼容旧配置。
 
 ### 客户端介绍
@@ -101,8 +103,8 @@ Clash 分为两个部分，内核和客户端，经许多大佬贡献，开源�
 首先，使用 vscode 打开一个空文件夹，里面新建空文件
 
 - config.yaml (功能：Clash 配置文件)
-- manual.txt (填写单个服务器节点链接用)
-- manual.yaml (**可选**，填写单个服务器节点详细信息用，查看 [sample/manual.yaml](sample/manual.yaml) 示例)
+- manual.txt (**可选**，填写单个服务器节点链接用)
+- manual.yaml (**可选**，填写单个服务器节点详细信息用，查看 [sample/manual.yaml](sample/manual.yaml) 示例，需获取直链)
 
 本文使用示例演示数据(均为假数据)，**演示数据覆盖全部类型**，实际使用按你有的数据按需使用即可：
 
@@ -200,21 +202,202 @@ dns: # dns 配置
 ```yaml
 # clash 格式的节点或支持 *ray 的分享格式
 proxy-providers:
-  p-1-free:
+  p-1-free: # 名字可按需更改，需要记住对应的节点来源，在规则中会使用到
     type: http
-    url: "1.yaml"
-    path: ./proxies/own.yaml
-    exclude-filter: "(?i)剩余流量|下次重置|套餐到期|站内返利|刷新订阅|计量|倍" # 排除名字包含指定内容的节点示例，多个关键词以|分隔
+    url: "https://freesub1.com/clash.yaml"
+    path: ./proxies/1.yaml
+    exclude-filter: "(?i)剩余流量|下次重置|套餐到期|站内返利|刷新订阅|计量|倍" # 排除过滤器：过滤掉名字包含指定内容的节点，多个关键词以|分隔
   p-2-airport:
     type: http
-    url: "2"
-    path: ./proxies/yiyuan.yaml
-    filter: "(?i)香港|港|hk|台湾|台|tw|美国|美|us|日本|日|jp|新加坡|sg" # 只保留名字包含指定内容的节点
-
+    url: "https://airport2.com/sub/sample"
+    path: ./proxies/2.yaml
+    filter: "(?i)香港|港|hk|台湾|台|tw|美国|美|us|日本|日|jp|新加坡|sg" # 保留过滤器：只保留名字包含指定内容的节点
+  p-3-own:
+    type: http
+    url: "https://own3.com/sub.yaml"
+    path: ./proxies/3.yaml
+  p-4-manual-yaml
+    type: http
+    url: "https://oss.com/manual.yaml"
+    path: ./proxies/4.yaml
+  p-4-manual-txt:
+    type: http
+    url: "https://oss.com/manual.txt"
+    path: ./proxies/5.yaml
 ```
 
-- 免费订阅 1 :`https://freesub1.com/clash.yaml`
+#### 然后配置分流规则
 
-- 自购机场订阅 2 :`https://airport2.com/sub/sample`
+```yaml
+rules:
+  # 基础规则，不建议修改
+  - geoip,private,全球直连,no-resolve
+  - geoip,cn,全球直连,no-resolve
 
-- 自建订阅 3: `https://own3.com/sub.yaml`
+  - geoip,telegram,tg,no-resolve
+
+  # ***********************************************
+  # 下列均为提升体验的补充规则，囊括了大部分规则撰写方法，按需使用
+
+  # 特殊规则及规则组的使用
+  - domain-suffix,u-tools.cn,utools
+  - domain-suffix,douyin.com,douyin
+  
+  # bing
+  - domain-suffix,bing.com,bing&twitter&openai
+  - domain-suffix,copilot.microsoft.com,bing&twitter&openai
+  - domain-suffix,twitter.com,bing&twitter&openai
+  - domain-suffix,x.com,bing&twitter&openai
+  - domain-suffix,twimg.com,bing&twitter&openai
+  - domain-suffix,coze.com,bing&twitter&openai
+  
+  # openai
+  - domain-suffix,openai.com,bing&twitter&openai
+  - domain-suffix,oaistatic.com,bing&twitter&openai
+  - domain-suffix,oaiusercontent.com,bing&twitter&openai
+  
+  # youtube
+  - domain-keyword,youtube,ytb
+  - domain,youtubei.googleapis.com,ytb
+  - domain,yt3.ggpht.com,ytb
+  - domain-suffix,googlevideo.com,ytb
+  - domain-suffix,gvt2.com,ytb
+  - domain-suffix,withyoutube.com,ytb
+  - domain-suffix,youtu.be,ytb
+  - domain-suffix,youtube-nocookie.com,ytb
+  - domain-suffix,youtube.com,ytb
+  - domain-suffix,youtubeeducation.com,ytb
+  - domain-suffix,youtubegaming.com,ytb
+  - domain-suffix,youtubekids.com,ytb
+  - domain-suffix,yt.be,ytb
+  - domain-suffix,ytimg.com,ytb
+  
+  # steam
+  - process-name,steam.exe,steam
+  - process-name,steamservice.exe,steam
+  - process-name,steamwebhelper.exe,steam
+
+  - domain,cdn.steamstatic.com,steam
+  - domain,fastly.cdn.steampipe.steamcontent.com,steam
+  - domain-suffix,steamuserimages-a.akamaihd.net,steam
+  - domain-suffix,steampipe.akamaized.net,steam
+  - domain,steamuserimages-a.akamaihd.net,steam
+  - AND,((DOMAIN-SUFFIX,steamcontent.com),(DOMAIN-KEYWORD,cache)),steam
+
+  # games
+  - process-name,beservice_x64.exe,steam
+  - process-name,destiny2.exe,steam
+  - process-name,destiny2launcher.exe,steam
+  - process-name,beservice_x64.exe,steam
+
+  # REJECT
+  # - OR,((DOMAIN-KEYWORD,pcdn),(DOMAIN-KEYWORD,stun)),REJECT
+  - domain,p.tencentmusic.com,应用净化
+  - domain,twns.p2ptun.qq.com,应用净化
+  - domain,musicps.p2p.qq.com,应用净化
+  - domain-suffix,bbums.org,应用净化
+  - domain-suffix,bbums.cn,应用净化
+  - domain-suffix,bbums.org.cn,应用净化
+  - domain,sdkapi.douyucdn.cn,应用净化
+  - domain,safebrowsing.googleapis.com,应用净化
+  
+  # DIRECT
+  # - AND,((DST-PORT,22),(GEOIP,CN,no-resolve)),DIRECT
+  # - process-name,clash-meta-alpha.exe,全球直连
+  - process-name,wechat.exe,全球直连
+  - process-name,HipsDaemon.exe,全球直连 # 火绒
+  - process-name,clash-meta-alpha,全球直连
+  - process-name,mihomo.exe,全球直连
+  - process-name,mihomo,全球直连
+  - process-name,verge-mihomo,全球直连
+  - process-name,verge-mihomo-alpha,全球直连
+  - process-name,mihomo-windows-amd64.exe,全球直连
+  - process-name,clash-meta.exe,全球直连
+  - process-name,clash-meta,全球直连
+  - process-name,sing-box.exe,全球直连
+  - process-name,sing-box,全球直连
+  - process-name,aria2c.exe,全球直连
+  - process-name,Thunder.exe,全球直连
+  - process-name,DownloadSDKServer.exe,全球直连
+  
+  - domain-suffix,fittentech.com,全球直连
+  - domain-keyword,ipv6,全球直连
+  - domain-suffix,zhipin.com,全球直连
+  - domain,speedtest.net,全球直连
+  - domain-suffix,baidu.com,全球直连
+  - domain-suffix,ustc.edu.cn,全球直连
+  - domain-suffix,tsinghua.edu.cn,全球直连
+  - domain-suffix,mushroomtrack.com,节点选择
+  - domain-suffix,alonestreaming.com,全球直连
+  - domain-suffix,cdnlab.live,全球直连
+  - domain-suffix,bitwarden.com,全球直连
+  - domain,clash.razord.top,全球直连
+  - domain,yacd.haishan.me,全球直连
+  - domain,gomirrors.org,全球直连
+  - domain-suffix,download-cdn.jetbrains.com,全球直连
+  - domain-suffix,tunnels.api.visualstudio.com,全球直连
+  - domain-suffix,sharepoint.com,全球直连
+  - domain-suffix,hellogithub.com,全球直连
+  - domain-suffix,loli.net,全球直连
+  - domain-suffix,deepl.com,全球直连
+
+  - process-name,SunloginClient.exe,全球直连
+
+  # 雷神加速器
+  - process-name,leigod.exe,全球直连
+  - process-name,adrive.exe,全球直连
+  - process-name,net_test.exe,全球直连
+
+  - domain-suffix,max-c.com,全球直连
+  - domain-suffix,yunpan.com,全球直连
+  - domain-suffix,soboten.com,全球直连
+  - domain,goproxy.io,全球直连
+  - domain,gosum.io,全球直连
+  - domain,npmmirror.com,全球直连
+  - domain,papago.naver.com,全球直连
+  - domain,api.papago-chrome.com,全球直连
+  - domain-suffix,dl.delivery.mp.microsoft.com,全球直连
+  - domain-suffix,download.windowsupdate.com,全球直连
+  - domain-suffix,cr173.com,全球直连
+  - domain-suffix,xainjo.com,全球直连
+  - domain-suffix,pc6.com,全球直连
+  - domain-suffix,paypal.com,全球直连
+  - domain-suffix,jianshu.io,全球直连
+  - domain-suffix,ocsp.usertrust.com,全球直连
+  - domain-suffix,cocopilot.org,全球直连
+  - domain,shared.oaifree.com,全球直连
+  - domain-suffix,deepseek.com,全球直连
+
+  - domain,cdn-lfs.huggingface.co,节点选择
+  - domain-suffix,services.googleapis.cn,节点选择
+  - domain-suffix,go.admjmp.com,节点选择
+  - domain-suffix,dl.google.com,节点选择
+  - domain-suffix,gofile.io,节点选择
+  - domain-suffix,mushroomtrack.com,节点选择
+  - domain-suffix,onedrive.live.com,节点选择
+
+  - domain-suffix,cdn.winget.microsoft.com,节点选择
+  - domain-suffix,storeedgefd.dsx.mp.microsoft.com,节点选择
+  - domain-suffix,cmscdn.papegames.com,节点选择
+  - domain-suffix,visualstudio.com,节点选择
+  - domain-suffix,edge.microsoft.com,节点选择
+  - domain,az764295.vo.msecnd.net,节点选择
+  - domain-suffix,reddit.com,节点选择
+  - process-name,sideloadly.exe,节点选择
+  - domain-suffix,zed.dev,节点选择
+  # ***********************************************
+
+  # 基础规则，满足日常使用，不建议修改
+  - geosite,category-ads-all,应用净化
+  - geosite,google,节点选择
+  - geosite,telegram,tg
+  - geosite,icloud,全球直连
+  - geosite,apple-cn,全球直连
+  
+  # 基础规则，不要修改
+  - geosite,private,全球直连
+  - geosite,cn,全球直连
+  - geosite,tld-cn,全球直连
+  - geosite,tld-!cn,节点选择
+  - match,漏网之鱼
+```
