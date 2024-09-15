@@ -1,47 +1,18 @@
 proxies:
-# 示例节点1
-  - name: "ss1"
-    type: ss
-    server: server
-    port: 443
-    cipher: aes-128-gcm
-    password: "password"
-    udp: true
-    udp-over-tcp: false
-    udp-over-tcp-version: 2
-    ip-version: ipv4
-    plugin: obfs
-    plugin-opts:
-      mode: tls
-    smux:
-      enabled: false
+# 保存形如下列格式的订阅
 
-# 示例节点2
-  - name: "vmess"
-    type: vmess
-    server: server
-    port: 443
-    udp: true
-    uuid: uuid
-    alterId: 0
-    cipher: auto
-    packet-encoding: packetaddr
-    global-padding: false
-    authenticated-length: false
-
-    tls: true
-    servername: example.com
-    alpn:
-      - h2
-      - http/1.1
-    fingerprint: xxxx
-    client-fingerprint: chrome
-    skip-cert-verify: true
-    reality-opts:
-      public-key: xxxx
-      short-id: xxxx
-
-    network: tcp
-
-    smux:
-      enabled: false
+  # - name: "ss1"
+  #   type: ss
+  #   server: server
+  #   port: 443
+  #   cipher: aes-128-gcm
+  #   password: "password"
+  #   udp: true
+  #   udp-over-tcp: false
+  #   udp-over-tcp-version: 2
+  #   ip-version: ipv4
+  #   plugin: obfs
+  #   plugin-opts:
+  #     mode: tls
+  #   smux:
+  #     enabled: false

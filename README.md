@@ -84,8 +84,51 @@ Clash 分为两个部分，内核和客户端。
 
 ## 第三章 进阶：配置文件编写
 
-首先，使用 vscode 打开一个空文件夹，里面新建
+### 1. 准备
+
+首先，使用 vscode 打开一个空文件夹，里面新建空文件
 
 - config.yaml (Clash 配置文件)
-- manual.txt (单个链式服务器节点)
-- manual.yaml
+- manual.txt (填写单个服务器节点链接用)
+- manual.yaml (**可选**，填写单个服务器节点详细信息用，查看 [sample/manual.yaml](sample/manual.yaml) 示例)
+
+本文使用示例数据(均为假数据，演示用)：
+
+订阅链接:
+
+免费订阅1 :`https://freesub1.com/clash.yaml`
+
+自购机场订阅2 :`https://airport2.com/sub/sample`
+
+自建订阅3: `https://own3.com/sub.yaml`
+
+
+单个节点:
+
+自建节点1: `vless://6a3465e8-d263-4462-b0d2-147e3cd655bd@1.1.1.1:12345?type=ws&security=none&path=%2F856ca3a7#test|sample1@xyz.com`
+
+共享节点2: `vless://6f47f83c-fe96-4727-9f83-2d32f7afc7ed@2.2.2.2:12345?type=ws&security=none&path=%2F856ca3a8#test|sample2@xyz.com`
+
+### 2. 编辑 `config.yaml`
+
+使用 vs code 编辑 `config.yaml` 这个空文件
+
+首先写入基础配置
+
+```yaml
+mode: rule 
+mixed-port: 7890 # http(s) 和 socks 代理混合端口
+log-level: silent # 需要查看日志，在客户端设置即可
+ipv6: true # ipv6 总开关，关闭将阻断所有 ipv6 链接和屏蔽 dns 请求 aaaa 记录
+allow-lan: true # 允许局域网连接
+bind-address: "*" # 绑定 ip 地址，仅作用于 allow-lan 为 true，'*'表示所有地址
+geox-url: #自定义 geodata url
+  geoip: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/geoip.dat"
+  geosite: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules- dat@release/geosite.dat"
+  mmdb: "https://testingcf.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@release/country.mmdb"
+  asn: "https://github.com/xishang0128/geoip/releases/download/latest/GeoLite2-ASN.mmdb"
+geodata-mode: true # true 使用 .dat, false 使用 .mmdb
+geo-auto-update: true
+geo-update-interval: 720
+```
+
