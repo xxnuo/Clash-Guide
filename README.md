@@ -216,7 +216,7 @@ proxy-providers:
     type: http
     url: "https://own3.com/sub.yaml"
     path: ./proxies/3.yaml
-  p-4-manual-yaml
+  p-4-manual-yaml:
     type: http
     url: "https://oss.com/manual.yaml"
     path: ./proxies/4.yaml
@@ -400,4 +400,10 @@ rules:
   - geosite,tld-cn,全球直连
   - geosite,tld-!cn,节点选择
   - match,漏网之鱼
+```
+
+#### 配置规则组
+
+```yaml
+todo
 ```
